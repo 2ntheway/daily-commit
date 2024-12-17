@@ -2,8 +2,8 @@ name: Daily Commit
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 每天零点自动运行
-  workflow_dispatch: # 手动触发此工作流
+    - cron: '0 0 * * *' # 每天零点运行
+  workflow_dispatch: # 手动触发
 
 jobs:
   commit:
@@ -15,12 +15,14 @@ jobs:
 
       - name: Update log file
         run: |
-          echo "Commit on $(date)" >> log.txt
+          echo "Automated commit on $(date)" >> log.txt
 
       - name: Commit and push changes
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}  # 使用 Secrets 存储的 Token
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add .
           git commit -m "Automated commit on $(date)"
-          git push
+          git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git main
